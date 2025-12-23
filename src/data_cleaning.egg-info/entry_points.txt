@@ -1,0 +1,2 @@
+[console_scripts]
+data-clean = data_cleaning.cli:main

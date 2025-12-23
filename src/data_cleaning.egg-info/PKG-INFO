@@ -1,12 +1,16 @@
+Metadata-Version: 2.4
+Name: data-cleaning
+Version: 0.1.0
+Summary: OOP data cleaning utilities for production analysis.
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=2.2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+
 # data-cleaning
 
 Small Python project that cleans production data for analysis using an OOP cleaner (`DataCleaner`).
-
-> 📖 **Full documentation**: See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for comprehensive usage instructions.
-
-> 🌐 **Web Application**: See [web/README.md](web/README.md) for the Flask + React web interface.
-
-> 🖥️ **Desktop Application**: See [desktop/README.md](desktop/README.md) for the Electron desktop app.
 
 ## Install (recommended)
 
