@@ -1,5 +1,5 @@
 name: Build Desktop App
-
+ 
 on:
   push:
     branches: [main]
@@ -8,7 +8,7 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:  # Allow manual trigger
-
+ 
 jobs:
   build:
     strategy:
@@ -21,13 +21,13 @@ jobs:
             platform: win
           - os: macos-latest
             platform: mac
-
+ 
     runs-on: ${{ matrix.os }}
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+ 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -36,15 +36,107 @@ jobs:
           cache-dependency-path: |
             web/frontend/package-lock.json
             desktop/package-lock.json
-
+ 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
-
+ 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
           pip install -r web/backend/requirements.txt
+ 
+      - name: Install frontend dependencies
+        working-directory: web/frontend
+        run: npm ci
+ 
+      - name: Build frontend
+        working-directory: web/frontend
+        run: npm run build
+ 
+      - name: Install Electron dependencies
+        working-directory: desktop
+        run: npm ci
+ 
+      - name: Build Electron app (Linux)
+        if: matrix.platform == 'linux'
+        working-directory: desktop
+        run: npm run dist:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Build Electron app (Windows)
+        if: matrix.platform == 'win'
+        working-directory: desktop
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Build Electron app (macOS)
+        if: matrix.platform == 'mac'
+        working-directory: desktop
+        run: npm run dist:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Upload Linux artifacts
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-cleaner-linux
+          path: |
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+          if-no-files-found: warn
+ 
+      - name: Upload Windows artifacts
+        if: matrix.platform == 'win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-cleaner-windows
+          path: |
+            desktop/dist/*.exe
+          if-no-files-found: warn
+ 
+      - name: Upload macOS artifacts
+        if: matrix.platform == 'mac'
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-cleaner-macos
+          path: |
+            desktop/dist/*.dmg
+            desktop/dist/*.zip
+          if-no-files-found: warn
+ 
+  # Create a release when a tag is pushed
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+ 
+      - name: Display downloaded files
+        run: ls -R artifacts
+ 
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/data-cleaner-linux/*
+            artifacts/data-cleaner-windows/*
+            artifacts/data-cleaner-macos/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
