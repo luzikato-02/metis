@@ -2,6 +2,8 @@
 
 Small Python project that cleans production data for analysis using an OOP cleaner (`DataCleaner`).
 
+> 📖 **Full documentation**: See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for comprehensive usage instructions.
+
 ## Install (recommended)
 
 ```bash
