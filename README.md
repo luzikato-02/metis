@@ -4,6 +4,8 @@ Small Python project that cleans production data for analysis using an OOP clean
 
 > 📖 **Full documentation**: See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for comprehensive usage instructions.
 
+> 🌐 **Web Application**: See [web/README.md](web/README.md) for the Flask + React web interface.
+
 ## Install (recommended)
 
 ```bash
