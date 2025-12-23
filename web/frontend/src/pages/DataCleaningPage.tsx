@@ -60,10 +60,18 @@ export function DataCleaningPage() {
     setIsUploading(true)
 
     try {
+      console.log('Uploading file:', file.name, file.size, file.type)
       const uploadedFile = await api.uploadFile(file)
       setUploadedFile(uploadedFile)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload file')
+    } catch (err: unknown) {
+      console.error('Upload error:', err)
+      // Try to extract error from axios response
+      if (typeof err === 'object' && err !== null && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { error?: string } } }
+        setError(axiosErr.response?.data?.error || 'Failed to upload file')
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to upload file')
+      }
     } finally {
       setIsUploading(false)
     }

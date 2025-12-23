@@ -25,8 +25,8 @@ def create_app(config_name: str = "default") -> Flask:
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
-    # Initialize extensions
-    CORS(app, origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"])
+    # Initialize extensions - allow all origins in development
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
     db.init_app(app)
     
     # Ensure directories exist
@@ -171,12 +171,17 @@ def register_routes(app: Flask) -> None:
     @app.route("/api/upload", methods=["POST"])
     def upload_file():
         """Upload a new file."""
+        print(f"Upload request received. Files: {list(request.files.keys())}")
+        print(f"Content-Type: {request.content_type}")
+        
         if "file" not in request.files:
-            return jsonify({"error": "No file provided"}), 400
+            print("Error: 'file' not in request.files")
+            return jsonify({"error": "No file provided. Make sure to use 'file' as the form field name."}), 400
         
         file = request.files["file"]
+        print(f"File received: {file.filename}")
         
-        if file.filename == "":
+        if file.filename == "" or file.filename is None:
             return jsonify({"error": "No file selected"}), 400
         
         if not allowed_file(file.filename, app.config["ALLOWED_EXTENSIONS"]):
@@ -196,12 +201,17 @@ def register_routes(app: Flask) -> None:
         
         try:
             # Read file to get metadata
+            print(f"Reading file from: {upload_path}")
             df = read_input_file(upload_path)
             row_count = len(df)
             column_count = len(df.columns)
             columns_json = json.dumps(list(df.columns))
+            print(f"File read successfully: {row_count} rows, {column_count} columns")
         except Exception as e:
             # Remove file if we can't read it
+            print(f"Error reading file: {e}")
+            import traceback
+            traceback.print_exc()
             upload_path.unlink()
             return jsonify({"error": f"Could not read file: {str(e)}"}), 400
         
