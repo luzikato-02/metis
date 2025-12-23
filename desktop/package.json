@@ -1,0 +1,75 @@
+{
+  "name": "data-cleaner",
+  "version": "1.0.0",
+  "description": "Desktop application for cleaning production data",
+  "main": "main.js",
+  "author": "Data Cleaning Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:frontend": "cd ../web/frontend && npm run build",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-is-dev": "^3.0.1"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.datacleaner.app",
+    "productName": "Data Cleaner",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "../web/frontend/dist",
+        "to": "frontend",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../web/backend",
+        "to": "backend",
+        "filter": ["**/*.py", "requirements.txt"]
+      },
+      {
+        "from": "../src",
+        "to": "src",
+        "filter": ["**/*.py"]
+      },
+      {
+        "from": "../pyproject.toml",
+        "to": "pyproject.toml"
+      }
+    ],
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "icon.png",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "icon.png",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

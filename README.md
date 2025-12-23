@@ -6,6 +6,8 @@ Small Python project that cleans production data for analysis using an OOP clean
 
 > 🌐 **Web Application**: See [web/README.md](web/README.md) for the Flask + React web interface.
 
+> 🖥️ **Desktop Application**: See [desktop/README.md](desktop/README.md) for the Electron desktop app.
+
 ## Install (recommended)
 
 ```bash

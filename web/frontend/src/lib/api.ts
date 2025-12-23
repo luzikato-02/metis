@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const API_BASE = '/api'
+// In Electron, we need to use the full URL since we're loading from files
+// In web mode, we use relative URLs that get proxied by Vite
+const isElectron = typeof window !== 'undefined' && (window as unknown as { electronAPI?: unknown }).electronAPI;
+const API_BASE = isElectron ? 'http://127.0.0.1:5000/api' : '/api'
 
 export interface DataFile {
   id: number
